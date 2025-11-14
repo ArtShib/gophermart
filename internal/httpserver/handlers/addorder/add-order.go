@@ -1,4 +1,4 @@
-package add_order
+package addorder
 
 import (
 	"context"

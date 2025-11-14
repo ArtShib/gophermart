@@ -1,4 +1,4 @@
-package http_server
+package httpserver
 
 import (
 	"context"
@@ -6,15 +6,15 @@ import (
 	"net/http"
 
 	"github.com/ArtShib/gophermart.git/internal/config"
-	add_order "github.com/ArtShib/gophermart.git/internal/http-server/handlers/add-order"
-	add_withdraw "github.com/ArtShib/gophermart.git/internal/http-server/handlers/add-withdraw"
-	get_balance "github.com/ArtShib/gophermart.git/internal/http-server/handlers/get-balance"
-	get_order "github.com/ArtShib/gophermart.git/internal/http-server/handlers/get-order"
-	get_withdrawals "github.com/ArtShib/gophermart.git/internal/http-server/handlers/get-withdrawals"
-	"github.com/ArtShib/gophermart.git/internal/http-server/handlers/login"
-	"github.com/ArtShib/gophermart.git/internal/http-server/handlers/register"
-	mwAuth "github.com/ArtShib/gophermart.git/internal/http-server/middleware/auth"
-	mwLogger "github.com/ArtShib/gophermart.git/internal/http-server/middleware/logger"
+	"github.com/ArtShib/gophermart.git/internal/httpserver/handlers/addorder"
+	"github.com/ArtShib/gophermart.git/internal/httpserver/handlers/addwithdraw"
+	"github.com/ArtShib/gophermart.git/internal/httpserver/handlers/getbalance"
+	"github.com/ArtShib/gophermart.git/internal/httpserver/handlers/getorder"
+	"github.com/ArtShib/gophermart.git/internal/httpserver/handlers/getwithdrawals"
+	"github.com/ArtShib/gophermart.git/internal/httpserver/handlers/login"
+	"github.com/ArtShib/gophermart.git/internal/httpserver/handlers/register"
+	mwAuth "github.com/ArtShib/gophermart.git/internal/httpserver/middleware/auth"
+	mwLogger "github.com/ArtShib/gophermart.git/internal/httpserver/middleware/logger"
 	"github.com/ArtShib/gophermart.git/internal/models"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -51,11 +51,11 @@ func New(svc AuthService, order Order, log *slog.Logger, cfg *config.Config) htt
 	mux.Group(func(r chi.Router) {
 		//r.Use(gzipHandle)
 		r.Use(mwAuth.New(log, svc, cfg))
-		r.Post("/api/user/orders", add_order.New(log, order))
-		r.Get("/api/user/orders", get_order.New(log, order))
-		r.Get("/api/user/balance", get_balance.New(log, order))
-		r.Get("/api/user/withdrawals", get_withdrawals.New(log, order))
-		r.Post("/api/user/balance/withdraw", add_withdraw.New(log, order))
+		r.Post("/api/user/orders", addorder.New(log, order))
+		r.Get("/api/user/orders", getorder.New(log, order))
+		r.Get("/api/user/balance", getbalance.New(log, order))
+		r.Get("/api/user/withdrawals", getwithdrawals.New(log, order))
+		r.Post("/api/user/balance/withdraw", addwithdraw.New(log, order))
 	})
 	return mux
 }

@@ -1,9 +1,8 @@
-package get_withdrawals
+package getbalance
 
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"log/slog"
 	"net/http"
 
@@ -12,12 +11,12 @@ import (
 )
 
 type Order interface {
-	Withdrawals(ctx context.Context, userID int64) (models.WithdrawalsArray, error)
+	Balance(ctx context.Context, userID int64) (*models.Balance, error)
 }
 
 func New(log *slog.Logger, order Order) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "Withdrawals.Get"
+		const op = "Balance.Get"
 
 		log := log.With(
 			slog.String("op", op),
@@ -32,13 +31,8 @@ func New(log *slog.Logger, order Order) http.HandlerFunc {
 			return
 		}
 
-		withdrawals, err := order.Withdrawals(r.Context(), userID)
+		getBalance, err := order.Balance(r.Context(), userID)
 		if err != nil {
-			if errors.Is(err, models.ErrWithdrawalsEmpty) {
-				log.Error("Withdrawals is empty", "error", models.ErrWithdrawalsEmpty)
-				http.Error(w, http.StatusText(http.StatusNoContent), http.StatusNoContent)
-				return
-			}
 			log.Error("get balance", "error", err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
@@ -47,7 +41,7 @@ func New(log *slog.Logger, order Order) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		encoder := json.NewEncoder(w)
-		if err := encoder.Encode(withdrawals); err != nil {
+		if err := encoder.Encode(getBalance); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

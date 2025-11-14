@@ -1,4 +1,4 @@
-package add_withdraw
+package addwithdraw
 
 import (
 	"context"

@@ -1,8 +1,9 @@
-package get_balance
+package getorder
 
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 
@@ -11,12 +12,12 @@ import (
 )
 
 type Order interface {
-	Balance(ctx context.Context, userID int64) (*models.Balance, error)
+	Get(ctx context.Context, userID int64) (models.OrderArray, error)
 }
 
 func New(log *slog.Logger, order Order) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "Balance.Get"
+		const op = "Order.Get"
 
 		log := log.With(
 			slog.String("op", op),
@@ -31,9 +32,14 @@ func New(log *slog.Logger, order Order) http.HandlerFunc {
 			return
 		}
 
-		getBalance, err := order.Balance(r.Context(), userID)
+		orderArray, err := order.Get(r.Context(), userID)
 		if err != nil {
-			log.Error("get balance", "error", err)
+			if errors.Is(err, models.ErrOrderEmpty) {
+				log.Error("orders is empty", "error", models.ErrOrderEmpty)
+				http.Error(w, http.StatusText(http.StatusNoContent), http.StatusNoContent)
+				return
+			}
+			log.Error("get orders", "error", err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
@@ -41,7 +47,7 @@ func New(log *slog.Logger, order Order) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		encoder := json.NewEncoder(w)
-		if err := encoder.Encode(getBalance); err != nil {
+		if err := encoder.Encode(orderArray); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

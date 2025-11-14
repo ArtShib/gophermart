@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/ArtShib/gophermart.git/internal/config"
-	http_client "github.com/ArtShib/gophermart.git/internal/http-client"
-	http_server "github.com/ArtShib/gophermart.git/internal/http-server"
+	"github.com/ArtShib/gophermart.git/internal/httpclient"
+	"github.com/ArtShib/gophermart.git/internal/httpserver"
 	liblog "github.com/ArtShib/gophermart.git/internal/lib/logger"
 	"github.com/ArtShib/gophermart.git/internal/services/accrual"
 	"github.com/ArtShib/gophermart.git/internal/services/auth"
@@ -33,11 +33,11 @@ func NewApp(cfg *config.Config, store *storage.Storage) *App {
 	app.Logger = liblog.New()
 	app.AuthSvc = auth.New(app.Logger, app.Storage, 10000000)
 	app.OrderSvc = order.New(app.Logger, app.Storage)
-	client := http_client.New(app.Logger)
+	client := httpclient.New(app.Logger)
 	app.AccrualSvc = accrual.New(app.Logger, app.Storage, app.Config.WorkerConfig, client, app.Config.AccrualAddress)
 	app.Server = &http.Server{
 		Addr:    cfg.HTTPServer.Address,
-		Handler: http_server.New(app.AuthSvc, app.OrderSvc, app.Logger, app.Config),
+		Handler: httpserver.New(app.AuthSvc, app.OrderSvc, app.Logger, app.Config),
 	}
 	return app
 }

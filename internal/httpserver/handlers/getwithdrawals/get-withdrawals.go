@@ -1,4 +1,4 @@
-package get_order
+package getwithdrawals
 
 import (
 	"context"
@@ -12,12 +12,12 @@ import (
 )
 
 type Order interface {
-	Get(ctx context.Context, userID int64) (models.OrderArray, error)
+	Withdrawals(ctx context.Context, userID int64) (models.WithdrawalsArray, error)
 }
 
 func New(log *slog.Logger, order Order) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "Order.Get"
+		const op = "Withdrawals.Get"
 
 		log := log.With(
 			slog.String("op", op),
@@ -32,14 +32,14 @@ func New(log *slog.Logger, order Order) http.HandlerFunc {
 			return
 		}
 
-		orderArray, err := order.Get(r.Context(), userID)
+		withdrawals, err := order.Withdrawals(r.Context(), userID)
 		if err != nil {
-			if errors.Is(err, models.ErrOrderEmpty) {
-				log.Error("orders is empty", "error", models.ErrOrderEmpty)
+			if errors.Is(err, models.ErrWithdrawalsEmpty) {
+				log.Error("Withdrawals is empty", "error", models.ErrWithdrawalsEmpty)
 				http.Error(w, http.StatusText(http.StatusNoContent), http.StatusNoContent)
 				return
 			}
-			log.Error("get orders", "error", err)
+			log.Error("get balance", "error", err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
@@ -47,7 +47,7 @@ func New(log *slog.Logger, order Order) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		encoder := json.NewEncoder(w)
-		if err := encoder.Encode(orderArray); err != nil {
+		if err := encoder.Encode(withdrawals); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
