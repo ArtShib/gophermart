@@ -1,6 +1,6 @@
 module github.com/ArtShib/gophermart.git
 
-go 1.25.1
+go 1.24.10
 
 require (
 	github.com/go-chi/chi v1.5.5
