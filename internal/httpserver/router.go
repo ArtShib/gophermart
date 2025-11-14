@@ -43,13 +43,11 @@ func New(svc AuthService, order Order, log *slog.Logger, cfg *config.Config) htt
 	mux.Use(mwLogger.New(log))
 
 	mux.Route("/api/user", func(r chi.Router) {
-		//r.Use(gzipHandle)
 		r.Post("/register", register.New(log, svc, cfg))
 		r.Post("/login", login.New(log, svc, cfg))
 	})
 
 	mux.Group(func(r chi.Router) {
-		//r.Use(gzipHandle)
 		r.Use(mwAuth.New(log, svc, cfg))
 		r.Post("/api/user/orders", addorder.New(log, order))
 		r.Get("/api/user/orders", getorder.New(log, order))
