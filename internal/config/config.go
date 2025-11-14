@@ -47,13 +47,13 @@ func (c *Config) LoadConfigEnv() error {
 }
 func (c *Config) LoadConfigFlag() {
 	if c.HTTPServer.Address == "" {
-		flag.StringVar(&c.HTTPServer.Address, "a", ":8080", "HTTP server startup address")
+		flag.StringVar(&c.HTTPServer.Address, "a", "", "HTTP server startup address")
 	}
 	if c.DatabaseDSN == "" {
-		flag.StringVar(&c.DatabaseDSN, "d", "host=localhost port=5432 user=postgres password=mysecretpassword dbname=postgres sslmode=disable", "DataBase connection string")
+		flag.StringVar(&c.DatabaseDSN, "d", "", "DataBase connection string")
 	}
 	if c.AccrualAddress == "" {
-		flag.StringVar(&c.AccrualAddress, "r", "http://localhost:8081/api/orders", "ACCRUAL SYSTEM ADDRESS")
+		flag.StringVar(&c.AccrualAddress, "r", "", "ACCRUAL SYSTEM ADDRESS")
 	}
 	flag.Parse()
 }
