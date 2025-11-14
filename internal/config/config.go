@@ -58,7 +58,6 @@ func (c *Config) LoadConfigFlag() {
 	flag.Parse()
 }
 
-// "postgresql://localhost:postgres@mysecretpassword/postgres?sslmode=disable"
 func MustLoadConfig() *Config {
 	cfg := Config{
 		HTTPServer: HTTPServer{
