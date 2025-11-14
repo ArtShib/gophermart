@@ -58,13 +58,14 @@ func (c *Config) LoadConfigFlag() {
 	flag.Parse()
 }
 
+// "postgresql://localhost:postgres@mysecretpassword/postgres?sslmode=disable"
 func MustLoadConfig() *Config {
 	cfg := Config{
 		HTTPServer: HTTPServer{
-			Address: os.Getenv("DATABASE_DSN"),
+			Address: os.Getenv("RUN_ADDRESS"),
 		},
 		DatabaseDSN:    os.Getenv("DATABASE_DSN"),
-		AccrualAddress: os.Getenv("DATABASE_DSN"),
+		AccrualAddress: os.Getenv("ACCRUAL_SYSTEM_ADDRESS"),
 		SecretKey:      []byte("sDfmldsnflkm<M SAD !2scxzcx#454556%$^%^&%*"),
 		WorkerConfig: WorkerConfig{
 			CountWorkers:   3,
