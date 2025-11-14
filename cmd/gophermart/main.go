@@ -31,5 +31,3 @@ func main() {
 	newApp.Stop(ctx)
 
 }
-
-//./gophermarttest -accrual-binary-path "/home/artem/GolandProjects/gophermart/cmd/accrual/accrual_linux_amd64" -accrual-database-uri "host=localhost port=5432 user=postgres password=mysecretpassword dbname=postgres sslmode=disable" -accrual-port "8081" -gophermart-binary-path "/home/artem/GolandProjects/gophermart/cmd/gophermart/gophermart" -gophermart-database-uri "host=localhost port=5432 user=postgres password=mysecretpassword dbname=postgres sslmode=disable" -gophermart-port "8080" -gophermart-host "localhost" -accrual-host "localhost"
