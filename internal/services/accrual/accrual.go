@@ -153,7 +153,7 @@ func (c *ClientAccrual) worker(ctx context.Context, id int, chOrder <-chan *mode
 			if !ok {
 				return
 			}
-			url := fmt.Sprintf("%s/%d", c.urlConnect, order.Number)
+			url := fmt.Sprintf("%s/api/orders/%d", c.urlConnect, order.Number)
 			orderAccrual, err := c.client.RequestAccrualOrder(ctx, url)
 			if err != nil {
 				c.log.Error("failed to request accrual order", "error", err)

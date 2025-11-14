@@ -34,10 +34,10 @@ func NewApp(cfg *config.Config, store *storage.Storage) *App {
 	app.AuthSvc = auth.New(app.Logger, app.Storage, 10000000)
 	app.OrderSvc = order.New(app.Logger, app.Storage)
 	client := http_client.New(app.Logger)
-	app.AccrualSvc = accrual.New(app.Logger, app.Storage, cfg.WorkerConfig, client, cfg.AccrualAddress)
+	app.AccrualSvc = accrual.New(app.Logger, app.Storage, app.Config.WorkerConfig, client, app.Config.AccrualAddress)
 	app.Server = &http.Server{
 		Addr:    cfg.HTTPServer.Address,
-		Handler: http_server.New(app.AuthSvc, app.OrderSvc, app.Logger, cfg),
+		Handler: http_server.New(app.AuthSvc, app.OrderSvc, app.Logger, app.Config),
 	}
 	return app
 }

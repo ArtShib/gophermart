@@ -74,5 +74,6 @@ func MustLoadConfig() *Config {
 		},
 	}
 	cfg.LoadConfigFlag()
+
 	return &cfg
 }
