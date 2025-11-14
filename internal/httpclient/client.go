@@ -53,11 +53,11 @@ func (c *Client) RequestAccrualOrder(ctx context.Context, urlConnect string) (*m
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("%s: invalid status code: %d", op, resp.StatusCode)
 	}
 	resAccrualOrder := models.ResAccrualOrder{}
+	defer resp.Body.Close()
 	decoder := json.NewDecoder(resp.Body)
 	if err = decoder.Decode(&resAccrualOrder); err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
