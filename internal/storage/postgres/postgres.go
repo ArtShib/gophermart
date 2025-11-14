@@ -168,7 +168,7 @@ func (pg *StorePostgres) AddOrder(ctx context.Context, numOrder int64, uploaded 
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	_, err = stmt.QueryContext(ctx, numOrder, uploaded, userID)
+	_, err = stmt.ExecContext(ctx, numOrder, uploaded, userID)
 
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -314,7 +314,7 @@ func (pg *StorePostgres) AddWithdraw(ctx context.Context, numOrder int64, userID
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	_, err = stmt.QueryContext(ctx, numOrder, userID, sum, processed)
+	_, err = stmt.ExecContext(ctx, numOrder, userID, sum, processed)
 
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -368,38 +368,6 @@ func (pg *StorePostgres) GetOrdersInWork(ctx context.Context) (models.OrderArray
 	}
 	return orderArray, nil
 }
-
-//func (pg *StorePostgres) UpdateOrdersBatch(ctx context.Context, orders models.ResAccrualOrderArray) error {
-//	const op = "storage.postgres.UpdateOrdersBatch"
-//
-//	values := make([]string, len(orders))
-//	args := make([]interface{}, 0, len(orders)*3)
-//	for i, order := range orders {
-//		pos1, pos2, pos3 := len(args)+1, len(args)+2, len(args)+3
-//		values[i] = fmt.Sprintf("($%d, $%d, $%d)", pos1, pos2, pos3)
-//		args = append(args, order.OrderNum, order.Status, order.Accrual)
-//	}
-//
-//	query := fmt.Sprintf(`
-//        UPDATE orders o
-//        SET status = v.status,
-//            accrual = v.accrual
-//        FROM (VALUES %s) AS v(number, status, accrual)
-//        WHERE o.number = v.number
-//    `, strings.Join(values, ", "))
-//
-//	stmt, err := pg.db.Prepare(query)
-//	if err != nil {
-//		return fmt.Errorf("%s: %w", op, err)
-//	}
-//
-//	_, err = stmt.ExecContext(ctx, args...)
-//	if err != nil {
-//		return fmt.Errorf("%s: %w", op, err)
-//	}
-//
-//	return nil
-//}
 
 func (pg *StorePostgres) UpdateOrdersBatch(ctx context.Context, orders models.ResAccrualOrderArray) error {
 	const op = "storage.postgres.UpdateOrdersBatch"
