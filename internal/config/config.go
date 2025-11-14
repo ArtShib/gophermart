@@ -15,9 +15,6 @@ type Config struct {
 	SecretKey      []byte
 	AccrualAddress string `env:"ACCRUAL_SYSTEM_ADDRESS"`
 	WorkerConfig   WorkerConfig
-	//ShortService *models.ShortServiceConfig
-	//RepoConfig   *models.RepositoryConfig
-	//Concurrency  *models.Concurrency
 }
 
 type HTTPServer struct {
@@ -60,12 +57,6 @@ func (c *Config) LoadConfigFlag() {
 	}
 	flag.Parse()
 }
-
-//func MustLoadConfig() *Config {
-//	cfg := Config{}
-//	cfg.LoadConfigFlag()
-//	return &cfg
-//}
 
 func MustLoadConfig() *Config {
 	cfg := Config{
