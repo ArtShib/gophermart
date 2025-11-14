@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -203,11 +204,14 @@ func (pg *StorePostgres) GetOrder(ctx context.Context, userID int64) (models.Ord
 	}
 
 	rows, err := stmt.QueryContext(ctx, userID)
-	defer rows.Close()
-
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			slog.Error(op, "Error", err)
+		}
+	}()
 
 	orderArray := models.OrderArray{}
 	for rows.Next() {
@@ -271,11 +275,15 @@ func (pg *StorePostgres) GetWithdrawals(ctx context.Context, userID int64) (mode
 	}
 
 	rows, err := stmt.QueryContext(ctx, userID)
-	defer rows.Close()
 
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			slog.Error(op, "Error", err)
+		}
+	}()
 
 	withdrawalsArray := models.WithdrawalsArray{}
 	for rows.Next() {
@@ -338,11 +346,15 @@ func (pg *StorePostgres) GetOrdersInWork(ctx context.Context) (models.OrderArray
 	}
 
 	rows, err := stmt.QueryContext(ctx)
-	defer rows.Close()
 
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			slog.Error(op, "Error", err)
+		}
+	}()
 
 	orderArray := models.OrderArray{}
 	for rows.Next() {
