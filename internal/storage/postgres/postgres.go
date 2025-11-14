@@ -404,7 +404,6 @@ func (pg *StorePostgres) UpdateOrdersBatch(ctx context.Context, orders models.Re
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
-	defer stmt.Close()
 
 	_, err = stmt.ExecContext(ctx, args...)
 	if err != nil {
