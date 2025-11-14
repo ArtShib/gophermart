@@ -63,7 +63,7 @@ func MustLoadConfig() *Config {
 		HTTPServer: HTTPServer{
 			Address: os.Getenv("RUN_ADDRESS"),
 		},
-		DatabaseDSN:    os.Getenv("DATABASE_DSN"),
+		DatabaseDSN:    os.Getenv("DATABASE_URI"),
 		AccrualAddress: os.Getenv("ACCRUAL_SYSTEM_ADDRESS"),
 		SecretKey:      []byte("sDfmldsnflkm<M SAD !2scxzcx#454556%$^%^&%*"),
 		WorkerConfig: WorkerConfig{
@@ -73,7 +73,6 @@ func MustLoadConfig() *Config {
 			BatchSize:      10,
 		},
 	}
-
 	cfg.LoadConfigFlag()
 	return &cfg
 }
