@@ -10,8 +10,9 @@ import (
 )
 
 type Config struct {
-	HTTPServer     HTTPServer `env:"database_dsn"`
-	DatabaseDSN    string     `env:"DATABASE_URI"`
+	HTTPServer     HTTPServer    `env:"database_dsn"`
+	DatabaseDSN    string        `env:"DATABASE_URI"`
+	TokenTTLMIN    time.Duration `env:"TOKEN_TTL_MIN"`
 	SecretKey      []byte
 	AccrualAddress string `env:"ACCRUAL_SYSTEM_ADDRESS"`
 	WorkerConfig   WorkerConfig
@@ -66,6 +67,7 @@ func MustLoadConfig() *Config {
 		DatabaseDSN:    os.Getenv("DATABASE_URI"),
 		AccrualAddress: os.Getenv("ACCRUAL_SYSTEM_ADDRESS"),
 		SecretKey:      []byte("sDfmldsnflkm<M SAD !2scxzcx#454556%$^%^&%*"),
+		TokenTTLMIN:    15,
 		WorkerConfig: WorkerConfig{
 			CountWorkers:   3,
 			InputChainSize: 20,

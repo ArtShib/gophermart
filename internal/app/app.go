@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/ArtShib/gophermart.git/internal/config"
 	"github.com/ArtShib/gophermart.git/internal/httpclient"
@@ -31,7 +32,7 @@ func NewApp(cfg *config.Config, store *storage.Storage) *App {
 		Storage: *store,
 	}
 	app.Logger = liblog.New()
-	app.AuthSvc = auth.New(app.Logger, app.Storage, 10000000)
+	app.AuthSvc = auth.New(app.Logger, app.Storage, cfg.TokenTTLMIN*time.Minute)
 	app.OrderSvc = order.New(app.Logger, app.Storage)
 	client := httpclient.New(app.Logger)
 	app.AccrualSvc = accrual.New(app.Logger, app.Storage, app.Config.WorkerConfig, client, app.Config.AccrualAddress)
@@ -53,8 +54,7 @@ func (a *App) Run(ctx context.Context) {
 }
 
 func (a *App) Stop(ctx context.Context) {
-
+	a.Server.Shutdown(ctx)
 	a.AccrualSvc.Stop()
 	a.Storage.Close()
-	a.Server.Shutdown(ctx)
 }
