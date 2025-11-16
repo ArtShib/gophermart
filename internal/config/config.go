@@ -75,6 +75,7 @@ func MustLoadConfig() *Config {
 			BatchSize:      10,
 		},
 	}
+	cfg.LoadConfigEnv()
 	cfg.LoadConfigFlag()
 
 	return &cfg
