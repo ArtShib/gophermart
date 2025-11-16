@@ -54,7 +54,11 @@ func (a *App) Run(ctx context.Context) {
 }
 
 func (a *App) Stop(ctx context.Context) {
-	a.Server.Shutdown(ctx)
+	if err := a.Server.Shutdown(ctx); err != nil {
+		a.Logger.Error(err.Error())
+	}
 	a.AccrualSvc.Stop()
-	a.Storage.Close()
+	if err := a.Storage.Close(); err != nil {
+		a.Logger.Error(err.Error())
+	}
 }
