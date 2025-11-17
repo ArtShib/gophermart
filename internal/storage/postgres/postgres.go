@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"embed"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -12,11 +13,15 @@ import (
 	"github.com/ArtShib/gophermart.git/internal/models"
 	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
 )
 
 type StorePostgres struct {
 	db *sql.DB
 }
+
+//go:embed migrations/*.sql
+var migrations embed.FS
 
 func NewPostgresStore(ctx context.Context, connectionString string) (*StorePostgres, error) {
 	const op = "storage.postgres.NewPostgresStore"
@@ -32,82 +37,10 @@ func NewPostgresStore(ctx context.Context, connectionString string) (*StorePostg
 
 	nCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	query := `
-				CREATE TABLE IF NOT EXISTS users
-				(
-					id        bigserial PRIMARY KEY,
-					login     text NOT NULL UNIQUE,
-					pass_hash text NOT NULL
-				);
-				CREATE INDEX IF NOT EXISTS idx_login ON users (login);				
-				create table if not exists orders
-				(
-					id          bigserial PRIMARY KEY,
-					number      bigint not null UNIQUE,
-					status      text default 'NEW',
-					accrual     float8 default null,
-					uploaded_at bigint not null,
-					user_id     bigint not null
-				);
-				create table if not exists withdrawal_accruals
-				(
-					id              bigserial PRIMARY KEY,
-					order_id        bigint not null,
-					user_id         bigint not null ,
-					sum             float8 not null,
-					processed_at    bigint not null
-				);
-				create or replace view balance as (
-					with
-						withdrawn as (
-							select
-								w.user_id,
-								sum(COALESCE(w.sum, 0)) as withdrawn
-							from withdrawal_accruals w
-							group by w.user_id),
-						accrual as (
-							select
-								o.user_id,
-								sum(COALESCE(o.accrual, 0)) as accrual
-							from orders o
-							group by o.user_id)
-				
-					select
-						a.user_id,
-						a.accrual - COALESCE(w.withdrawn, 0) as current,
-						COALESCE(w.withdrawn, 0) as withdrawn
-					from accrual a
-					left join withdrawn w on w.user_id = a.user_id);
-				create or replace function check_balance_user()
-				returns trigger as $$
-					declare
-						current_balance float8;
-						order_id bigint;
-					begin
-						SELECT "current" INTO current_balance
-						FROM balance
-						WHERE user_id = NEW.user_id
-						FOR UPDATE;
-						if COALESCE(current_balance, 0) <= new.sum then
-						raise exception 'there are not enough bonuses to deduct';
-					   ELSE
-						INSERT INTO orders (number, user_id, uploaded_at)
-						VALUES (NEW.order_id, NEW.user_id, NEW.processed_at) RETURNING id INTO order_id;
-						NEW.order_id = order_id;
-						end if;
-						return new;
-					end;
-					$$ language plpgsql;
-				create or replace trigger check_balance_user
-				before insert or update on withdrawal_accruals
-				for each row execute function check_balance_user();`
-
-	_, err = db.ExecContext(nCtx, query)
-
-	if err != nil {
+	goose.SetBaseFS(migrations)
+	if err := goose.UpContext(nCtx, db, "migrations"); err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-
 	return &StorePostgres{db: db}, nil
 }
 
