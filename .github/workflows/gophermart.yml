@@ -1,4 +1,4 @@
-name: gophermart
+name: save_gophermart
 
 on:
   workflow_dispatch:
